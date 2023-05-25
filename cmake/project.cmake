@@ -1,5 +1,6 @@
 include(cmake/apt.cmake)
 include(cmake/download.cmake)
+include(cmake/extensions.cmake)
 include(cmake/options.cmake)
 include(cmake/ros.cmake)
 include(cmake/setup-env.cmake)
@@ -13,6 +14,14 @@ include(ExternalProject)
 add_custom_target(clone)
 add_custom_target(uninstall)
 add_custom_target(update)
+
+add_custom_target(self-update
+  COMMAND ${CMAKE_COMMAND}
+            -DNAME=mc-rtc-superbuild
+            -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
+            -DGIT_TAG=origin/main
+            -P ${CMAKE_CURRENT_LIST_DIR}/scripts/update-project.cmake
+)
 
 # Wrapper around the ExternalProject_Add function to allow simplified usage
 #
@@ -35,9 +44,10 @@ add_custom_target(update)
 function(AddProject NAME)
   get_property(MC_RTC_SUPERBUILD_SOURCES GLOBAL PROPERTY MC_RTC_SUPERBUILD_SOURCES)
   set(options NO_NINJA NO_SOURCE_MONITOR CLONE_ONLY SKIP_TEST SKIP_SYMBOLIC_LINKS)
-  set(oneValueArgs ${MC_RTC_SUPERBUILD_SOURCES} GIT_TAG SOURCE_DIR BINARY_DIR SUBFOLDER WORKSPACE LINK_TO SOURCE_SUBDIR)
+  set(oneValueArgs ${MC_RTC_SUPERBUILD_SOURCES} GIT_TAG SOURCE_DIR BINARY_DIR SUBFOLDER WORKSPACE LINK_TO SOURCE_SUBDIR INSTALL_PREFIX)
   set(multiValueArgs CMAKE_ARGS BUILD_COMMAND CONFIGURE_COMMAND INSTALL_COMMAND DEPENDS APT_PACKAGES)
   cmake_parse_arguments(ADD_PROJECT_ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  list(APPEND ADD_PROJECT_ARGS_DEPENDS ${GLOBAL_DEPENDS})
   if(USE_MC_RTC_APT_MIRROR AND ADD_PROJECT_ARGS_APT_PACKAGES)
     set(APT_PACKAGES)
     foreach(PKG ${ADD_PROJECT_ARGS_APT_PACKAGES})
@@ -52,9 +62,11 @@ function(AddProject NAME)
     endforeach()
     AptInstall(${APT_PACKAGES})
     add_custom_target(${NAME})
+    foreach(DEP ${ADD_PROJECT_ARGS_DEPENDS})
+      add_dependencies(${NAME} ${DEP})
+    endforeach()
     return()
   endif()
-  list(APPEND ADD_PROJECT_ARGS_DEPENDS ${GLOBAL_DEPENDS})
   # Handle GIT_REPOSITORY
   set(GIT_REPOSITORY "")
   foreach(SOURCE ${MC_RTC_SUPERBUILD_SOURCES})
@@ -107,6 +119,11 @@ But the previous call used:
   ${PREVIOUS_GIT_REPOSITORY}#${PREVIOUS_GIT_TAG}
 This is likely a conflict between different extensions.")
   endif()
+  if(MC_RTC_SUPERBUILD_PRE_COMMIT)
+    set(PRE_COMMIT_OPTION -DPRE_COMMIT=${MC_RTC_SUPERBUILD_PRE_COMMIT})
+  else()
+    set(PRE_COMMIT_OPTION)
+  endif()
   if(NOT "${GIT_REPOSITORY}" STREQUAL "")
     add_custom_command(
       OUTPUT "${STAMP_DIR}/${NAME}-submodule-init"
@@ -119,6 +136,7 @@ This is likely a conflict between different extensions.")
           -DLINK_TO=${LINK_TO}
           -DOPERATION="init"
           -DSTAMP_OUT=${STAMP_DIR}/${NAME}-submodule-init
+          ${PRE_COMMIT_OPTION}
           -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/scripts/git-submodule-init-update.cmake
       COMMENT "Init ${NAME} repository"
     )
@@ -196,8 +214,15 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
   if(ADD_PROJECT_ARGS_CMAKE_ARGS)
     set(CMAKE_ARGS "${ADD_PROJECT_ARGS_CMAKE_ARGS}")
   endif()
+  if(ADD_PROJECT_ARGS_INSTALL_PREFIX)
+    set(INSTALL_PREFIX ${ADD_PROJECT_ARGS_INSTALL_PREFIX})
+    PrefixRequireSudo(${INSTALL_PREFIX} INSTALL_PREFIX_USE_SUDO)
+  else()
+    set(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+    set(INSTALL_PREFIX_USE_SUDO ${USE_SUDO})
+  endif()
   list(PREPEND CMAKE_ARGS
-    "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+    "-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}"
     "-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON"
     "-DINSTALL_DOCUMENTATION:BOOL=${INSTALL_DOCUMENTATION}"
     "-DPYTHON_BINDING:BOOL=${PYTHON_BINDING}"
@@ -235,7 +260,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
       set(BINARY_DIR "${BUILD_DESTINATION}/${NAME}")
     endif()
   endif()
-  GetCommandPrefix(COMMAND_PREFIX)
+  GetCommandPrefix(COMMAND_PREFIX "${STAMP_DIR}/cmake-prefix.cmake")
   if(EMSCRIPTEN)
     set(EMCMAKE emcmake)
     set(EMMAKE emmake)
@@ -263,7 +288,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
   endif()
   # -- Build command
   if(NOT ADD_PROJECT_ARGS_BUILD_COMMAND AND NOT BUILD_COMMAND IN_LIST ADD_PROJECT_ARGS_KEYWORDS_MISSING_VALUES)
-    set(BUILD_COMMAND ${COMMAND_PREFIX} ${EMMAKE} ${CMAKE_COMMAND} --build . --config $<CONFIG>)
+    set(BUILD_COMMAND ${COMMAND_PREFIX} ${EMMAKE} ${CMAKE_COMMAND} --build ${BINARY_DIR} --config $<CONFIG>)
   else()
     if("${ADD_PROJECT_ARGS_BUILD_COMMAND}" STREQUAL "")
       set(BUILD_COMMAND ${CMAKE_COMMAND} -E true)
@@ -273,7 +298,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
   endif()
   # -- Install command
   if(NOT ADD_PROJECT_ARGS_INSTALL_COMMAND AND NOT INSTALL_COMMAND IN_LIST ADD_PROJECT_ARGS_KEYWORDS_MISSING_VALUES)
-    set(INSTALL_COMMAND ${EMMAKE} ${CMAKE_COMMAND} --build ${BINARY_DIR} --target install --config $<CONFIG>)
+    set(INSTALL_COMMAND ${COMMAND_PREFIX} ${EMMAKE} ${CMAKE_COMMAND} --build ${BINARY_DIR} --target install --config $<CONFIG>)
   else()
     if("${ADD_PROJECT_ARGS_INSTALL_COMMAND}" STREQUAL "")
       set(INSTALL_COMMAND "")
@@ -281,7 +306,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
       set(INSTALL_COMMAND ${COMMAND_PREFIX} ${ADD_PROJECT_ARGS_INSTALL_COMMAND})
     endif()
   endif()
-  if(USE_SUDO AND NOT "${INSTALL_COMMAND}" STREQUAL "")
+  if(INSTALL_PREFIX_USE_SUDO AND NOT "${INSTALL_COMMAND}" STREQUAL "")
     set(INSTALL_COMMAND ${SUDO_CMD} -E ${INSTALL_COMMAND})
     if(NOT DEFINED ENV{USER})
       execute_process(COMMAND whoami OUTPUT_VARIABLE USER OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -374,7 +399,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
     add_custom_target(uninstall-${NAME}
       COMMAND ${CMAKE_COMMAND}
                 -DBINARY_DIR=${BINARY_DIR}
-                -DUSE_SUDO=${USE_SUDO}
+                -DUSE_SUDO=${INSTALL_PREFIX_USE_SUDO}
                 -DSUDO_CMD=${SUDO_CMD}
                 -DINSTALL_STAMP="${PROJECT_BINARY_DIR}/prefix/${NAME}/src/${NAME}-stamp/${NAME}-install"
                 -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/scripts/uninstall-project.cmake
@@ -394,6 +419,8 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
               -DGIT_TAG=${GIT_TAG}
               -DSOURCE_DESTINATION=${SOURCE_DESTINATION}
               -DTARGET_FOLDER=${RELATIVE_SOURCE_DIR}
+              -DLINK_TO=${LINK_TO}
+              ${PRE_COMMIT_OPTION}
               -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/scripts/update-project.cmake
   )
   add_dependencies(update update-${NAME})
@@ -481,7 +508,7 @@ endfunction()
 # - SUBFOLDER Directory inside the main project where the plugin should be cloned
 function(AddProjectPlugin NAME PROJECT)
   set(options)
-  set(oneValueArgs SUBFOLDER)
+  set(oneValueArgs SUBFOLDER LINK_NAME)
   set(multiValueArgs)
   if(NOT TARGET ${PROJECT})
     message(FATAL_ERROR "Cannot add a plugin to unknown project: ${PROJECT}")
@@ -489,10 +516,16 @@ function(AddProjectPlugin NAME PROJECT)
   cmake_parse_arguments(ADD_PROJECT_PLUGIN_ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
   ExternalProject_Get_Property(${PROJECT} SOURCE_DIR)
   set(PLUGIN_DEST_DIR  "${SOURCE_DESTINATION}/.plugins/${PROJECT}_${ADD_PROJECT_PLUGIN_ARGS_SUBFOLDER}_${NAME}")
+  set(LINK_TO "${SOURCE_DIR}/${ADD_PROJECT_PLUGIN_ARGS_SUBFOLDER}")
+  if(ADD_PROJECT_PLUGIN_ARGS_LINK_NAME)
+    set(LINK_TO "${LINK_TO}/${ADD_PROJECT_PLUGIN_ARGS_LINK_NAME}")
+  else()
+    set(LINK_TO "${LINK_TO}/${NAME}")
+  endif()
   AddProject(${NAME}
     SOURCE_DIR "${PLUGIN_DEST_DIR}"
     BINARY_DIR "${PLUGIN_DEST_DIR}"
-    LINK_TO "${SOURCE_DIR}/${ADD_PROJECT_PLUGIN_ARGS_SUBFOLDER}/${NAME}"
+    LINK_TO "${LINK_TO}"
     CLONE_ONLY
     ${ADD_PROJECT_PLUGIN_ARGS_UNPARSED_ARGUMENTS}
   )

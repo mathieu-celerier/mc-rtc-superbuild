@@ -24,8 +24,9 @@ Usage
 
 ```shell
 git clone https://github.com/mc-rtc/mc-rtc-superbuild
-cmake -S mc-rtc-superbuild -B . -DSOURCE_DESTINATION=${HOME}/mc-rtc
-cmake --build . --config RelWithDebInfo
+# Run the bootstrap script in mc-rtc-superbuild/utils folder if required
+cmake -S mc-rtc-superbuild -B mc-rtc-superbuild/build -DSOURCE_DESTINATION=${HOME}/devel/src -DBUILD_DESTINATION=${HOME}/devel/build
+cmake --build mc-rtc-superbuild/build --config RelWithDebInfo
 ```
 
 This will:
@@ -37,6 +38,12 @@ This will:
 
 You can then use the projects that were built and clone by the superbuild as you would use projects you built and clone yourself. If you modify some projects, the superbuild will pick up on it and rebuild its dependents.
 
+#### Note
+
+On Linux and macOS, all commands of the form `cmake --build ${FOLDER} --config RelWithDebInfo --target ${TARGET}` can also be run by `make ${TARGET}` in `${FOLDER}`. In particular, you can start a build by simply doing `make` in the build folder.
+
+You should avoid running something like `make -jN`. This will build up to `N` projects in parallel but each project will run its own parallelized build and that will likely be too much for your machine RAM or CPU.
+
 Separate clone and build
 ==
 
@@ -44,7 +51,8 @@ If you want to clone everything before attempting the first build you can use th
 
 ```shell
 git clone https://github.com/mc-rtc/mc-rtc-superbuild
-cmake -S mc-rtc-superbuild -B . -DSOURCE_DESTINATION=${HOME}/mc-rtc
+cmake -S mc-rtc-superbuild -B mc-rtc-superbuild/build -DSOURCE_DESTINATION=${HOME}/devel/src -DBUILD_DESTINATION=${HOME}/devel/build
+cd mc-rtc-superbuild/build
 cmake --build . --config RelWithDebInfo --target clone
 cmake --build . --config RelWithDebInfo
 ```
@@ -62,18 +70,28 @@ Or invididually pull some of the projects and their dependencies:
 cmake --build . --config RelWithDebInfo --target update-mc_rtc
 ```
 
+Update mc-rtc-superbuild and extensions
+==
+
+You can run the `self-update` target to update mc-rtc-superbuild and all the cloned extensions:
+```shell
+cmake --build . --config RelWithDebInfo --target self-update
+```
+
 Extensions
 --
 
-You can add extensions to the superbuild system by cloning extensions projects into the `extensions` folder, see for example the [lipm-walking-controller-superbuild](https://github.com/mc-rtc/lipm-walking-controller-superbuild) project.
+You can add extensions to the superbuild system by cloning extensions projects into the `extensions` folder, see for example the [lipm-walking-controller-superbuild](https://github.com/mc-rtc/lipm-walking-controller-superbuild) for an example centered around a single project.
 
 ```shell
 cd mc-rtc-superbuild/extensions
 git clone https://github.com/mc-rtc/lipm-walking-controller-superbuild
-cd ../../
+cd ../build/
 # Will build mc_rtc and then the lipm-walking-controller project and its dependencies
 cmake --build . --config RelWithDebInfo
 ```
+
+You can also check out [superbuild-extensions](https://github.com/mc-rtc/superbuild-extensions) for commonly availabe extensions. Please refer to this repository for usage instructions.
 
 Options
 --
@@ -146,6 +164,7 @@ Other options for `AddProject` are:
 - `NO_NINJA`: use CMake's default generator rather than ninja
 - `NO_SOURCE_MONITOR`: disable source monitoring. By default, superbuild will monitor the source folder to force the rebuild of packages and their dependents when change happens. Some projects systematically trigger rebuilds under this monitor and this option disable it. Rebuilds then have to be triggered manually via the `force-${NAME}` target.
 - `SKIP_SYMBOLIC_LINKS`: disable the creation of symbolic links. By default, on supported platforms, superbuild creates a link between the source folder and the build folder as well as a link from the source folder to the CMake's generated `compile_commands.json`. This option disables the behavior.
+- `INSTALL_PREFIX`: override the provided `CMAKE_INSTALL_PREFIX`
 
 For advanced usage, other options supported by [ExternalProject_Add](https://cmake.org/cmake/help/latest/module/ExternalProject.html) are also supported by `AddProject`.
 
@@ -197,9 +216,11 @@ superbuild knows the following source:
 AddProjectPlugin
 ==
 
-** `AddProjectPlugin(<name> <project> [SUBFOLDER <folder>] [<options>]...)` **
+** `AddProjectPlugin(<name> <project> [SUBFOLDER <folder>] [LINK_NAME <name>] [<options>]...)` **
 
 Clone the project inside the provided `SUBFOLDER` of `<project>`. Other options are passed to `AddProject` but `CLONE_ONLY` is always enabled.
+
+By default, the project is cloned in an hidden folder (due to submodule limitations) and linked inside the specified project's source directory as `${SUBFOLDER}/${NAME}`. `LINK_NAME` can override this behavior and create the link to `${SUBFOLDER}/${LINK_NAME}`.
 
 AptInstall
 ==

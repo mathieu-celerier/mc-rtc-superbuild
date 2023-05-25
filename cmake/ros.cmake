@@ -29,24 +29,20 @@ function(AppendROSWorkspace DEV_DIR SRC_DIR)
 endfunction()
 
 function(ConfigureSkipList ID)
-  get_property(WKS_DIR GLOBAL PROPERTY CATKIN_WORKSPACE_${WKS}_DIR)
-  get_property(SKIPLIST_STAMP GLOBAL PROPERTY CATKIN_WORKSPACE_${WKS}_SKIPLIST_STAMP)
-  get_property(SKIPLIST GLOBAL PROPERTY CATKIN_WORKSPACE_${WKS}_SKIPLIST)
-  list(LENGTH SKIPLIST N_SKIPLIST)
-  set(CONFIG_SKIPLIST_COMMAND "${CMAKE_COMMAND}" -E chdir "${WKS_DIR}")
-  if(N_SKIPLIST EQUAL 0)
-    set(CONFIG_SKIPLIST_COMMAND ${CONFIG_SKIPLIST_COMMAND} catkin config --no-skiplist)
-    set(CONFIG_SKIPLIST_COMMAND_COMMENT "Clearing skiplist for ${WKS}")
-  else()
-    set(CONFIG_SKIPLIST_COMMAND ${CONFIG_SKIPLIST_COMMAND} catkin config --skiplist ${SKIPLIST})
-    list(JOIN SKIPLIST " " SKIPLIST_STR)
-    set(CONFIG_SKIPLIST_COMMAND_COMMENT "Set skiplist for ${WKS}: ${SKIPLIST_STR}")
-  endif()
+  get_property(WKS_DIR GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_DIR)
+  get_property(SKIPLIST_STAMP GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_STAMP)
+  get_property(SKIPLIST_FILE GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_FILE)
+  get_property(SKIPLIST_FILE_CACHE GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_FILE_CACHE)
   add_custom_command(
     OUTPUT "${SKIPLIST_STAMP}"
-    COMMAND ${CONFIG_SKIPLIST_COMMAND}
-    COMMAND "${CMAKE_COMMAND}" -E touch "${SKIPLIST_STAMP}"
-    COMMENT ${CONFIG_SKIPLIST_COMMAND_COMMENT}
+    COMMAND "${CMAKE_COMMAND}"
+            -DWKS=${ID}
+            -DWKS_DIR=${WKS_DIR}
+            -DSKIPLIST_STAMP=${SKIPLIST_STAMP}
+            -DSKIPLIST_FILE=${SKIPLIST_FILE_CACHE}
+            -DROS_DISTRO=${ROS_DISTRO}
+            -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/scripts/catkin-configure-skiplist.cmake
+    DEPENDS "${SKIPLIST_FILE_CACHE}"
   )
 endfunction()
 
@@ -92,8 +88,8 @@ function(CreateCatkinWorkspace)
     set(WORKSPACE_TYPE "build")
   endif()
   AppendROSWorkspace("${DIR}/devel" "${DIR}/src")
-  GetCommandPrefix(COMMAND_PREFIX)
   set(STAMP_DIR "${PROJECT_BINARY_DIR}/catkin-stamps/")
+  GetCommandPrefix(COMMAND_PREFIX "${STAMP_DIR}/cmake-prefix.cmake")
   file(MAKE_DIRECTORY "${STAMP_DIR}")
   set(STAMP_FILE "${STAMP_DIR}/${ID}.init.stamp")
   add_custom_command(
@@ -118,9 +114,21 @@ function(CreateCatkinWorkspace)
     set(BUILD_COMMAND_DEPENDS)
   else()
     set(BUILD_COMMAND ${COMMAND_PREFIX} "${CMAKE_COMMAND}" -E chdir "${DIR}" catkin build -DCMAKE_BUILD_TYPE=$<CONFIG> ${CC_WORKSPACE_ARGS_CATKIN_BUILD_ARGS})
-    set_property(GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST)
+
+    set(SKIPLIST_FILE "${STAMP_DIR}/${ID}-skiplist.txt")
+    set_property(GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_FILE "${SKIPLIST_FILE}")
+    file(REMOVE "${SKIPLIST_FILE}")
+    file(TOUCH "${SKIPLIST_FILE}")
+    set(SKIPLIST_FILE_CACHE "${STAMP_DIR}/${ID}-skiplist-cache.txt")
+    set_property(GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_FILE_CACHE "${SKIPLIST_FILE_CACHE}")
+    file(GENERATE
+      OUTPUT "${SKIPLIST_FILE_CACHE}"
+      INPUT "${SKIPLIST_FILE}"
+    )
+
     set(SKIPLIST_STAMP_FILE "${STAMP_DIR}/${ID}-skiplist.stamp")
     set_property(GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_STAMP "${SKIPLIST_STAMP_FILE}")
+
     add_custom_target(catkin-config-skiplist-${ID} DEPENDS "${SKIPLIST_STAMP_FILE}")
     add_dependencies(catkin-config-skiplist-${ID} catkin-init-${ID})
     set(BUILD_COMMAND_DEPENDS DEPENDS ${SKIPLIST_STAMP_FILE})
@@ -156,7 +164,8 @@ function(AddPackageToCatkinSkiplist ID PKG)
   if(NOT TARGET catkin-config-skiplist-${ID})
     message(FATAL_ERROR "${ID} must be a catkin build workspace to use this feature")
   endif()
-  set_property(GLOBAL APPEND PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST ${PKG})
+  get_property(SKIPLIST_FILE GLOBAL PROPERTY CATKIN_WORKSPACE_${ID}_SKIPLIST_FILE)
+  file(APPEND "${SKIPLIST_FILE}" "${PKG}\n")
 endfunction()
 
 function(SetCatkinDependencies TARGET TARGET_DEPENDENCIES TARGET_WORKSPACE)
@@ -166,7 +175,7 @@ function(SetCatkinDependencies TARGET TARGET_DEPENDENCIES TARGET_WORKSPACE)
     foreach(TGT ${TARGET_DEPENDENCIES})
       list(FIND WKS_TARGETS "${TGT}" TMP)
       if(TMP GREATER_EQUAL 0 AND NOT "${WKS}" STREQUAL "${TARGET_WORKSPACE}")
-        add_dependencies(${TARGET} catkin-build-${WKS})
+        add_dependencies(${TARGET}-configure catkin-build-${WKS})
         set_property(GLOBAL PROPERTY CATKIN_WORKSPACE_${WKS}_IS_LEAF FALSE)
       endif()
     endforeach()

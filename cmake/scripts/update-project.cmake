@@ -8,7 +8,7 @@ endif()
 
 # Skip update for fixed tags
 # It is technically possible to reposition a tag but we accept the risk
-if(NOT GIT_TAG MATCHES "^origin/(.*)")
+if(DEFINED GIT_TAG AND NOT GIT_TAG MATCHES "^origin/(.*)")
   message("[SKIP] Update ${NAME}: fixed to ${GIT_TAG}")
   return()
 endif()
@@ -53,7 +53,12 @@ execute_process(
   WORKING_DIRECTORY "${SOURCE_DIR}"
 )
 
-if(git_rev_parse_err OR NOT "${CURRENT_REMOTE_BRANCH}" STREQUAL "${GIT_TAG}")
+if(git_rev_parse_err)
+  message("[SKIP] Update ${NAME}: cannot figure tracking branch")
+  return()
+endif()
+
+if(DEFINED GIT_TAG AND NOT "${CURRENT_REMOTE_BRANCH}" STREQUAL "${GIT_TAG}")
   message("[SKIP] Update ${NAME}: not tracking ${GIT_TAG}")
   return()
 endif()
@@ -74,6 +79,10 @@ execute_process(
   WORKING_DIRECTORY "${SOURCE_DIR}"
 )
 
+if(NOT DEFINED SOURCE_DESTINATION)
+  return()
+endif()
+
 execute_process(
   COMMAND git add .
   WORKING_DIRECTORY "${SOURCE_DESTINATION}"
@@ -84,3 +93,23 @@ execute_process(
   WORKING_DIRECTORY "${SOURCE_DESTINATION}"
   OUTPUT_QUIET ERROR_QUIET
 )
+
+if(DEFINED PRE_COMMIT AND EXISTS "${SOURCE_DIR}/.pre-commit-config.yaml" AND EXISTS "${SOURCE_DIR}/.git")
+  execute_process(
+    COMMAND ${PRE_COMMIT} install
+    WORKING_DIRECTORY ${SOURCE_DIR}
+    OUTPUT_QUIET ERROR_QUIET
+    COMMAND_ERROR_IS_FATAL ANY
+  )
+endif()
+
+if(NOT "${LINK_TO}" STREQUAL "")
+  if(NOT WIN32)
+    file(CREATE_LINK "${SOURCE_DESTINATION}/${TARGET_FOLDER}" "${LINK_TO}" SYMBOLIC)
+  else()
+    file(COPY "${SOURCE_DESTINATION}/${TARGET_FOLDER}" "${LINK_TO}")
+    if("${OPERATION}" STREQUAL "init")
+      file(APPEND "${SOURCE_DESTINATION}/.gitignore" "${LINK_TO}/*")
+    endif()
+  endif()
+endif()

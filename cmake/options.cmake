@@ -48,6 +48,39 @@ if(MC_RTC_SUPERBUILD_DEFAULT_PYTHON)
   message("-- Use Python for install: ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON}")
 endif()
 
+if(MC_RTC_SUPERBUILD_DEFAULT_PYTHON)
+  execute_process(
+    COMMAND ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON} -m site --user-base
+    OUTPUT_VARIABLE MC_RTC_SUPERBUILD_DEFAULT_PYTHON_USER_BASE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND_ERROR_IS_FATAL ANY
+  )
+  if(WIN32)
+    execute_process(
+      COMMAND
+        ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON} -c
+        "import sys; print(\"{}{}\".format(sys.version_info.major, sys.version_info.minor));"
+      OUTPUT_VARIABLE MC_RTC_SUPERBUILD_DEFAULT_PYTHON_VERSION
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(MC_RTC_SUPERBUILD_DEFAULT_PYTHON_BIN_HINT "${MC_RTC_SUPERBUILD_DEFAULT_PYTHON_USER_BASE}/Python${MC_RTC_SUPERBUILD_DEFAULT_PYTHON_VERSION}/Scripts")
+  else()
+    set(MC_RTC_SUPERBUILD_DEFAULT_PYTHON_BIN_HINT "${MC_RTC_SUPERBUILD_DEFAULT_PYTHON_USER_BASE}/bin")
+  endif()
+  find_program(MC_RTC_SUPERBUILD_PRE_COMMIT NAMES pre-commit HINTS ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON_BIN_HINT})
+  if(NOT MC_RTC_SUPERBUILD_PRE_COMMIT)
+    # Install pre-commit with pip
+    execute_process(
+      COMMAND ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON} -m pip install --user pre-commit
+      COMMAND_ERROR_IS_FATAL ANY
+    )
+    find_program(MC_RTC_SUPERBUILD_PRE_COMMIT NAMES pre-commit HINTS ${MC_RTC_SUPERBUILD_DEFAULT_PYTHON_BIN_HINT})
+    if(NOT MC_RTC_SUPERBUILD_PRE_COMMIT)
+      message(FATAL_ERROR "Failed to find pre-commit despite installing via pip?")
+    endif()
+  endif()
+  message("-- Use pre-commit: ${MC_RTC_SUPERBUILD_PRE_COMMIT}")
+endif()
+
 option(PYTHON_BINDING "Generate Python binding" ${PYTHON_BINDING_DEFAULT})
 if(WIN32)
   set(PYTHON_BINDING_USER_INSTALL_DEFAULT ON)

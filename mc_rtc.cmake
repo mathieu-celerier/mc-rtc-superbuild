@@ -22,6 +22,7 @@ if(PYTHON_BINDING)
   AddProject(Eigen3ToPython
     GITHUB jrl-umi3218/Eigen3ToPython
     GIT_TAG origin/master
+    CMAKE_ARGS -DPIP_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     APT_PACKAGES python-eigen python3-eigen
   )
   list(APPEND SpaceVecAlg_DEPENDS Eigen3ToPython)
@@ -45,6 +46,7 @@ if(PYTHON_BINDING)
   AddProject(sch-core-python
     GITHUB jrl-umi3218/sch-core-python
     GIT_TAG origin/master
+    CMAKE_ARGS -DPIP_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     DEPENDS sch-core SpaceVecAlg
     APT_PACKAGES python-sch-core python3-sch-core
   )
@@ -105,13 +107,11 @@ AddProject(Tasks
   APT_PACKAGES libtasks-qld-dev python-tasks python3-tasks
 )
 
-if(USE_MC_RTC_APT_MIRROR)
-  message("WARNING LexLS will not be used by mc-rtc if mc-rtc apt packages are used")
-endif()
 AddProject(lexls
   GITHUB jrl-umi3218/lexls
   GIT_TAG origin/master
   CMAKE_ARGS -DINSTALL_PDF_DOCUMENTATION:BOOL=OFF -DINSTALL_HTML_DOCUMENTATION:BOOL=OFF
+  APT_PACKAGES liblexls-dev
 )
 
 if(WITH_LSSOL)

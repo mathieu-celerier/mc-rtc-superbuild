@@ -1,4 +1,4 @@
-name: CI Ubuntu Focal
+name: CI Ubuntu Jammy
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         exclude:
           - use-mc-rtc-apt-mirror: OFF
             use-mc-rtc-apt-mirror-stable: ON
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Maximize build space
       shell: bash

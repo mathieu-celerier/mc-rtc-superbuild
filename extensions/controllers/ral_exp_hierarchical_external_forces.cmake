@@ -1,0 +1,5 @@
+AddProject(ral_exp_hierarchical_external_forces_controller
+	GITHUB_PRIVATE mathieu-celerier/ral_exp_hierarchical_external_forces_controller
+	GIT_TAG origin/main
+	DEPENDS mc_rtc
+)

@@ -83,9 +83,9 @@ if(WITH_Kinova)
   endif()
 
   if(${ROS_DISTRO} STREQUAL "jazzy")
-    AddCatkinProject(ros_kortex
-      GITHUB Kinovarobotics/ros_kortex
-      GIT_TAG origin/noetic-devel
+    AddCatkinProject(ros2_kortex
+      GITHUB Kinovarobotics/ros2_kortex
+      GIT_TAG origin/main
       WORKSPACE data_ws
     )
   else()

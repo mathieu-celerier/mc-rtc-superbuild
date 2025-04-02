@@ -5,7 +5,7 @@ endif()
 
 AddProject(ndcurves
   GITHUB loco-3d/ndcurves
-  GIT_TAG v1.1.5
+  GIT_TAG v2.0.0
   CMAKE_ARGS -DBUILD_PYTHON_INTERFACE:BOOL=OFF
   SKIP_TEST
   APT_PACKAGES libndcurves-dev
@@ -128,7 +128,7 @@ AddProject(tvm
   APT_PACKAGES libtvm-dev
 )
 
-if(ROS_IS_ROS2)
+if(NOT WITH_ROS_SUPPORT)
   set(MC_RTC_ROS_BRANCH origin/ROSFree)
 else()
   set(MC_RTC_ROS_BRANCH origin/master)
@@ -144,7 +144,7 @@ set(mc_rtc_DEPENDS tvm Tasks mc_rtc_data ndcurves state-observation)
 if(WITH_ROS_SUPPORT)
   AddCatkinProject(mc_rtc_msgs
     GITHUB jrl-umi3218/mc_rtc_msgs
-    GIT_TAG ${MC_RTC_ROS_BRANCH}
+    GIT_TAG origin/master
     WORKSPACE data_ws
     # APT_PACKAGES ros-${ROS_DISTRO}-mc-rtc-msgs
   )
@@ -175,7 +175,7 @@ AddProject(mc_rtc
   APT_PACKAGES libmc-rtc-dev mc-rtc-utils python-mc-rtc python3-mc-rtc ros-${ROS_DISTRO}-mc-rtc-plugin
 )
 
-if(WITH_ROS_SUPPORT AND NOT ROS_IS_ROS2)
+if(WITH_ROS_SUPPORT)
   AddCatkinProject(mc_rtc_ros
     GITHUB jrl-umi3218/mc_rtc_ros
     GIT_TAG origin/master
@@ -190,7 +190,7 @@ set(MC_STATE_OBSERVATION_OPTIONS "-DWITH_ROS_OBSERVERS=OFF")
 
 if(WITH_ROS_SUPPORT)
   AddProject(gram_savitzky_golay
-    GITHUB arntanguy/gram_savitzky_golay
+    GITHUB jrl-umi3218/gram_savitzky_golay
     GIT_TAG origin/master
     APT_PACKAGES libgram-savitzky-golay-dev
   )

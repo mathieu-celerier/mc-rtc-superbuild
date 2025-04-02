@@ -40,6 +40,13 @@ add_custom_target(self-update
 #
 # - GLOBAL_DEPENDS those projects are added to every project dependencies
 #
+# Override variables
+# =================
+# The following global variables may be used to override default project configuration.
+# These are meant to be used by script (CI, etc) to install projects with a specific configuration (correct branch/remote, etc).
+#
+# * MC_RTC_SUPERBUILD_OVERRIDE_<NAME>_<SOURCE> overrides the SOURCE property
+# * MC_RTC_SUPERBUILD_OVERRIDE_<NAME>_GIT_TAG overrides the GIT_TAG property
 
 function(AddProject NAME)
   get_property(MC_RTC_SUPERBUILD_SOURCES GLOBAL PROPERTY MC_RTC_SUPERBUILD_SOURCES)
@@ -76,11 +83,26 @@ function(AddProject NAME)
         message(FATAL_ERROR "Multiple sources have been specified for ${NAME}")
       endif()
       get_property(GIT_REPOSITORY GLOBAL PROPERTY MC_RTC_SUPERBUILD_SOURCES_${SOURCE})
-      set(GIT_REPOSITORY "${GIT_REPOSITORY}${ADD_PROJECT_ARGS_${SOURCE}}")
+      # Override the SOURCE if set
+      if(MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE})
+        set(GIT_REPOSITORY "${GIT_REPOSITORY}${MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE}}")
+        message(
+          WARNING "Overriding ${SOURCE} property for project ${NAME} because MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE} is set:
+Previous      : ${SOURCE} \"${ADD_PROJECT_ARGS_${SOURCE}}\"
+Using         : ${SOURCE} \"${MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE}}\"
+Git repository: \"${GIT_REPOSITORY}\"")
+      else()
+        set(GIT_REPOSITORY "${GIT_REPOSITORY}${ADD_PROJECT_ARGS_${SOURCE}}")
+      endif()
     endif()
   endforeach()
   # Handle GIT_TAG
-  if(ADD_PROJECT_ARGS_GIT_TAG)
+  if(MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_GIT_TAG)
+    set(GIT_TAG "${MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_GIT_TAG}")
+    message(WARNING "Overriding GIT_TAG property for project ${NAME} because MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_GIT_TAG is set:
+Previous: GIT_TAG \"${ADD_PROJECT_ARGS_GIT_TAG}\"
+Using   : GIT_TAG \"${GIT_TAG}\"")
+  elseif(ADD_PROJECT_ARGS_GIT_TAG)
     set(GIT_TAG "${ADD_PROJECT_ARGS_GIT_TAG}")
   else()
     set(GIT_TAG "origin/main")
@@ -161,7 +183,7 @@ This is likely a conflict between different extensions.")
         NOT "${PREVIOUS_GIT_TAG}" STREQUAL "${GIT_TAG}")
       # GIT_REPOSITORY and/or GIT_TAG have changed, we check if there was any local changes
       if(EXISTS "${SOURCE_DIR}/.git")
-        execute_process(COMMAND git diff-index --quiet ${PREVIOUS_GIT_TAG} --
+        execute_process(COMMAND git diff-index --quiet HEAD --
           WORKING_DIRECTORY "${SOURCE_DIR}"
           RESULT_VARIABLE GIT_HAS_ANY_CHANGES)
         if(GIT_HAS_ANY_CHANGES)
@@ -344,7 +366,7 @@ You have local changes in ${SOURCE_DIR} that would be overwritten by this change
     set(VERBOSE_OPTION "")
   endif()
   if(NOT ADD_PROJECT_ARGS_SKIP_TEST AND BUILD_TESTING)
-    set(TEST_STEP_OPTIONS TEST_AFTER_INSTALL TRUE TEST_COMMAND ${COMMAND_PREFIX} ctest -C $<CONFIG> ${VERBOSE_OPTION})
+    set(TEST_STEP_OPTIONS TEST_AFTER_INSTALL TRUE TEST_COMMAND ${COMMAND_PREFIX} ctest -C $<CONFIG> ${VERBOSE_OPTION} --rerun-failed --output-on-failure)
   endif()
   # -- Depends option
   if("${ADD_PROJECT_ARGS_DEPENDS}" STREQUAL "")

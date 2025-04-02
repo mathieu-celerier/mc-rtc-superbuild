@@ -1,4 +1,8 @@
 option(WITH_Panda "Build Franka Emika Panda support" OFF)
+option(WITH_PandaLIRMM "Build Panda support for LIRMM robots" OFF)
+if(WITH_PandaLIRMM AND NOT WITH_Panda)
+  message(FATAL_ERROR "Panda LIRMM support requires Panda support")
+endif()
 
 set(Panda_DEPENDENCIES_FROM_SOURCE_DEFAULT ON)
 if(DPKG AND WITH_ROS_SUPPORT)
@@ -20,7 +24,7 @@ if(Panda_DEPENDENCIES_FROM_SOURCE)
     AddCatkinProject(franka_ros
       GITHUB frankaemika/franka_ros
       GIT_TAG origin/0.8.1
-      WORKSPACE "${CATKIN_WORKSPACE}"
+      WORKSPACE mc_rtc_ws
       DEPENDS libfranka
     )
     list(APPEND mc_panda_DEPENDS franka_ros)
@@ -37,3 +41,17 @@ AddProject(mc_panda
   GIT_TAG origin/master
   DEPENDS mc_rtc ${mc_panda_DEPENDS}
 )
+
+AddProject(mc_franka
+  GITHUB jrl-umi3218/mc_franka
+  GIT_TAG origin/master
+  DEPENDS mc_rtc mc_panda
+)
+
+if(WITH_PandaLIRMM)
+  AddProject(mc_panda_lirmm
+    GITHUB jrl-umi3218/mc_panda_lirmm
+    GIT_TAG origin/main
+    DEPENDS mc_panda
+  )
+endif()

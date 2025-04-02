@@ -5,7 +5,7 @@ if(NOT WITH_Kinova)
 endif()
 
 AddProject(mc_kinova
-	GITHUB mathieu-celerier/mc_kinova
+  GITHUB_PRIVATE mathieu-celerier/mc_kinova
 	GIT_TAG origin/main
-	DEPENDS  mc_rtc
+	DEPENDS mc_rtc
 )

@@ -37,5 +37,5 @@ fi
 
 if [[ ! -f $HOME/.local/bin/pre-commit ]]
 then
-  /usr/bin/python3 -m pip install --user pre-commit
+  /usr/bin/python3 -m pip install --break-system-packages --user pre-commit
 fi

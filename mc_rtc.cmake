@@ -129,7 +129,7 @@ AddProject(tvm
 )
 
 if(ROS_IS_ROS2)
-  set(MC_RTC_ROS_BRANCH origin/ROS2)
+  set(MC_RTC_ROS_BRANCH origin/ROSFree)
 else()
   set(MC_RTC_ROS_BRANCH origin/master)
 endif()
@@ -137,7 +137,7 @@ AddCatkinProject(mc_rtc_data
   GITHUB jrl-umi3218/mc_rtc_data
   GIT_TAG ${MC_RTC_ROS_BRANCH}
   WORKSPACE data_ws
-  APT_PACKAGES mc-rtc-data ros-${ROS_DISTRO}-mc-rtc-data
+  APT_PACKAGES mc-rtc-data #ros-${ROS_DISTRO}-mc-rtc-data
 )
 
 set(mc_rtc_DEPENDS tvm Tasks mc_rtc_data ndcurves state-observation)
@@ -146,7 +146,7 @@ if(WITH_ROS_SUPPORT)
     GITHUB jrl-umi3218/mc_rtc_msgs
     GIT_TAG ${MC_RTC_ROS_BRANCH}
     WORKSPACE data_ws
-    APT_PACKAGES ros-${ROS_DISTRO}-mc-rtc-msgs
+    # APT_PACKAGES ros-${ROS_DISTRO}-mc-rtc-msgs
   )
   list(APPEND mc_rtc_DEPENDS mc_rtc_msgs)
 endif()

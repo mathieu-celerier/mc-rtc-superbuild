@@ -53,8 +53,8 @@ if(PYTHON_BINDING)
 endif()
 
 AddProject(RBDyn
-  GITHUB jrl-umi3218/RBDyn
-  GIT_TAG origin/master
+  GITHUB mathieu-celerier/RBDyn
+  GIT_TAG origin/RotorInertia
   DEPENDS SpaceVecAlg
   APT_PACKAGES librbdyn-dev python-rbdyn python3-rbdyn
 )
@@ -168,8 +168,8 @@ else()
   set(MC_RTC_EXTRA_OPTIONS)
 endif()
 AddProject(mc_rtc
-  GITHUB jrl-umi3218/mc_rtc
-  GIT_TAG origin/master
+  GITHUB_PRIVATE mathieu-celerier/mc_rtc
+  GIT_TAG origin/topic/external-forces-aware-qp-new-vel-damper
   CMAKE_ARGS -DMC_LOG_UI_PYTHON_EXECUTABLE=${MC_LOG_UI_PYTHON_EXECUTABLE} ${MC_RTC_ROS_OPTION} ${MC_RTC_EXTRA_OPTIONS}
   DEPENDS ${mc_rtc_DEPENDS}
   APT_PACKAGES libmc-rtc-dev mc-rtc-utils python-mc-rtc python3-mc-rtc ros-${ROS_DISTRO}-mc-rtc-plugin
@@ -177,7 +177,7 @@ AddProject(mc_rtc
 
 if(WITH_ROS_SUPPORT)
   AddCatkinProject(mc_rtc_ros
-    GITHUB jrl-umi3218/mc_rtc_ros
+    GITHUB bastien-muraccioli/mc_rtc_ros
     GIT_TAG origin/master
     WORKSPACE mc_rtc_ws
     DEPENDS mc_rtc

@@ -54,7 +54,7 @@ endif()
 
 AddProject(RBDyn
   GITHUB mathieu-celerier/RBDyn
-  GIT_TAG origin/RotorInertia
+  GIT_TAG origin/topic/RotorInertia
   DEPENDS SpaceVecAlg
   APT_PACKAGES librbdyn-dev python-rbdyn python3-rbdyn
 )

@@ -31,7 +31,7 @@ if(NOT CONAN)
   if(NOT PYTHON3)
     message(FATAL_ERROR "Must have python3 to install conan to use the Kinova robot")
   endif()
-  execute_process(COMMAND /usr/bin/python3 -m pip install --break-system-packages conan>=1.60.1 COMMAND_ERROR_IS_FATAL ANY)
+  execute_process(COMMAND /usr/bin/python3 -m pip install --break-system-packages conan==1.66 COMMAND_ERROR_IS_FATAL ANY)
   find_program(CONAN conan)
   if(NOT CONAN)
     message(FATAL_ERROR "Conan installation went wrong")
@@ -85,7 +85,7 @@ if(${ROS_DISTRO} STREQUAL "jazzy")
   )
 
   AddCatkinProject(soem
-    GITHUB botasys/soem
+    GITLAB botasys/soem
     GIT_TAG origin/foxy-devel
     WORKSPACE data_ws
   )

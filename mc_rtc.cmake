@@ -270,7 +270,7 @@ AddProject(
 if(WITH_ROS_SUPPORT)
   AddCatkinProject(
     mc_rtc_ros
-    GITHUB jrl-umi3218/mc_rtc_ros
+    GITHUB bastien-muraccioli/mc_rtc_ros
     GIT_TAG origin/master
     WORKSPACE mc_rtc_ws
     DEPENDS mc_rtc

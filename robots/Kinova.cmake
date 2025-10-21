@@ -9,17 +9,24 @@ if(NOT WITH_ROS_SUPPORT)
 endif()
 
 if(ROS_IS_ROS2)
-  AptInstall(
-    ros-${ROS_DISTRO}-kortex-api ros-${ROS_DISTRO}-kortex-bringup
-    ros-${ROS_DISTRO}-kortex-description ros-${ROS_DISTRO}-kortex-driver
+  # AptInstall(
+  #   ros-${ROS_DISTRO}-kortex-api ros-${ROS_DISTRO}-kortex-bringup
+  #   ros-${ROS_DISTRO}-kortex-description ros-${ROS_DISTRO}-kortex-driver
+  # )
+
+  AddCatkinProject(
+    ros2_kortex
+    GITHUB Kinovarobotics/ros2_kortex
+    GIT_TAG origin/main
+    WORKSPACE data_ws
   )
+
 
   AddProject(
     mc_kinova
-    GITHUB isri-aist/mc_kinova
-    GIT_TAG origin/main
-    APT_PACKAGES mc_rtc ros-${ROS_DISTRO}-kortex-api ros-${ROS_DISTRO}-kortex-bringup
-                 ros-${ROS_DISTRO}-kortex-description ros-${ROS_DISTRO}-kortex-driver
+    GITHUB mathieu-celerier/mc_kinova
+    GIT_TAG origin/RSS2025
+    DEPENDS mc_rtc ros2_kortex
   )
 else()
   AddCatkinProject(

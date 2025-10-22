@@ -228,8 +228,8 @@ else()
 endif()
 AddProject(
   mc_rtc
-  GITHUB bastien-muraccioli/mc_rtc
-  GIT_TAG origin/master
+  GITHUB_PRIVATE mathieu-celerier/mc_rtc
+  GIT_TAG origin/topic/explicit-compliance-and-safety
   CMAKE_ARGS -DMC_LOG_UI_PYTHON_EXECUTABLE=${MC_LOG_UI_PYTHON_EXECUTABLE}
              ${MC_RTC_ROS_OPTION} ${MC_RTC_EXTRA_OPTIONS}
   DEPENDS ${mc_rtc_DEPENDS}

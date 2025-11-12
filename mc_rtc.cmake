@@ -145,8 +145,8 @@ if(PYTHON_BINDING)
 endif()
 AddProject(
   Tasks
-  GITHUB jrl-umi3218/Tasks
-  GIT_TAG origin/master
+  GITHUB mathieu-celerier/Tasks
+  GIT_TAG origin/topic/explicit-compliance-and-safety
   DEPENDS ${Tasks_DEPENDS}
   APT_PACKAGES libtasks-qld-dev python-tasks python3-tasks
 )
@@ -240,7 +240,7 @@ AddProject(
 if(WITH_ROS_SUPPORT)
   AddCatkinProject(
     mc_rtc_ros
-    GITHUB bastien-muraccioli/mc_rtc_ros
+    GITHUB jrl-umi3218/mc_rtc_ros
     GIT_TAG origin/master
     WORKSPACE mc_rtc_ws
     DEPENDS mc_rtc

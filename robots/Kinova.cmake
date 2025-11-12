@@ -24,8 +24,8 @@ if(ROS_IS_ROS2)
 
   AddProject(
     mc_kinova
-    GITHUB mathieu-celerier/mc_kinova
-    GIT_TAG origin/RSS2025
+    GITHUB_PRIVATE mathieu-celerier/mc_kinova
+    GIT_TAG origin/main-external-forces
     DEPENDS mc_rtc ros2_kortex
   )
 else()

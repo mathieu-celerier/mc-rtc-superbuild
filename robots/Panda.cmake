@@ -28,18 +28,30 @@ if(Panda_DEPENDENCIES_FROM_SOURCE)
   AddProject(
     libfranka
     GITHUB frankaemika/libfranka
-    GIT_TAG origin/0.8.0
+    GIT_TAG origin/release-0.17.0
+    SKIP_TEST
   )
   set(mc_panda_DEPENDS libfranka)
   if(WITH_ROS_SUPPORT)
-    AddCatkinProject(
-      franka_ros
-      GITHUB frankaemika/franka_ros
-      GIT_TAG origin/0.8.1
-      WORKSPACE mc_rtc_ws
-      DEPENDS libfranka
-    )
-    list(APPEND mc_panda_DEPENDS franka_ros)
+    if(ROS_IS_ROS2)
+      AddCatkinProject(
+        franka_description
+        GITHUB frankarobotics/franka_description
+        GIT_TAG origin/jazzy
+        WORKSPACE mc_rtc_ws
+        DEPENDS libfranka
+      )
+      list(APPEND mc_panda_DEPENDS franka_description)
+    else()
+      AddCatkinProject(
+        franka_ros
+        GITHUB frankaemika/franka_ros
+        GIT_TAG origin/0.8.1
+        WORKSPACE mc_rtc_ws
+        DEPENDS libfranka
+      )
+      list(APPEND mc_panda_DEPENDS franka_ros)
+    endif()
   endif()
 else()
   if(NOT DPKG OR NOT WITH_ROS_SUPPORT)
@@ -51,6 +63,13 @@ else()
   AptInstall(ros-${ROS_DISTRO}-libfranka ros-${ROS_DISTRO}-franka-description)
 endif()
 
+AddProject(
+  mc_panda
+  GITHUB jrl-umi3218/mc_panda
+  GIT_TAG origin/master
+  DEPENDS mc_rtc ${mc_panda_DEPENDS}
+)
+
 if(WITH_MC_FRANKA)
   AptInstall(libcap2-bin) # for setcap
   AddProject(
@@ -60,13 +79,6 @@ if(WITH_MC_FRANKA)
     DEPENDS mc_rtc mc_panda
   )
 endif()
-
-AddProject(
-  mc_panda
-  GITHUB jrl-umi3218/mc_panda
-  GIT_TAG origin/master
-  DEPENDS mc_rtc ${mc_panda_DEPENDS}
-)
 
 if(WITH_PandaLIRMM)
   AddProject(

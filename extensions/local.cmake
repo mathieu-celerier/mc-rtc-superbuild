@@ -1,5 +1,6 @@
 include(${CMAKE_CURRENT_LIST_DIR}/tasks/minimum_jerk_task.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/interfaces/mc_mujoco.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/interfaces/mc_kortex.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/plugins/mc_residual_estimation.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/plugins/mc_joystick_plugin.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/controllers/monodzukuri.cmake)

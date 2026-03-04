@@ -11,8 +11,8 @@
   "image": "ghcr.io/mc-rtc/mc-rtc-superbuild:noble-devcontainer-latest",
 
   "mounts": [
-    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached"
-    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/mc-rtc-superbuild-noble,target=/home/vscode/workspace,type=bind,consistency=cached"
+    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/kinova-demos,target=/home/vscode/workspace,type=bind,consistency=cached"
   ],
 
   "runArgs": [
@@ -32,7 +32,7 @@
   },
 
   "remoteUser": "vscode",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/superbuild,type=bind",
+  "workspaceMount": "source=${localEnv:HOME}${localEnv:USERPROFILE}/superbuilds/kinova-demos,target=/home/vscode/superbuild,type=bind",
   "workspaceFolder": "/home/vscode/superbuild",
 
   "features":

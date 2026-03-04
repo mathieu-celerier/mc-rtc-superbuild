@@ -50,7 +50,7 @@
   },
 
   "remoteUser": "vscode",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/superbuild,type=bind",
+  "workspaceMount": "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/kinova-demos,target=/home/vscode/superbuild,type=bind",
   "workspaceFolder": "/home/vscode/superbuild",
 
 

@@ -141,7 +141,7 @@ endif()
 AddProject(
   Tasks
   GITHUB mathieu-celerier/Tasks
-  GIT_TAG origin/topic/explicit-compliance-and-safety
+  GIT_TAG origin/topic/closed-loop-velocity-damper
   DEPENDS ${Tasks_DEPENDS}
   APT_PACKAGES libtasks-qld-dev python-tasks python3-tasks
 )
@@ -224,7 +224,7 @@ endif()
 AddProject(
   mc_rtc
   GITHUB_PRIVATE mathieu-celerier/mc_rtc
-  GIT_TAG origin/topic/explicit-compliance-and-safety
+  GIT_TAG origin/topic/second-order-velocity-damper
   CMAKE_ARGS -DMC_LOG_UI_PYTHON_EXECUTABLE=${MC_LOG_UI_PYTHON_EXECUTABLE}
              ${MC_RTC_ROS_OPTION} ${MC_RTC_EXTRA_OPTIONS}
   DEPENDS ${mc_rtc_DEPENDS}

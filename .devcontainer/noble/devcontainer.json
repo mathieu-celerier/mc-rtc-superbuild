@@ -22,10 +22,9 @@
     "seccomp=unconfined", // allow core dumps
     // Uncomment for containers requiring use of nvidia GPUs
     // You will need to install NVIDIA Container Toolkit first
-    // "--runtime=nvidia",
-    // "--gpus=all",
+    "--runtime=nvidia",
+    "--gpus=all"
   ],
-
 
   "containerEnv": {
     "DISPLAY": "${localEnv:DISPLAY}"
@@ -34,28 +33,30 @@
   "remoteUser": "vscode",
   "workspaceMount": "source=${localEnv:HOME}${localEnv:USERPROFILE}/superbuilds/kinova-demos,target=/home/vscode/superbuild,type=bind",
   "workspaceFolder": "/home/vscode/superbuild",
+  "postCreateCommand": "sudo chsh -s /usr/bin/zsh vscode",
 
-  "features":
-  {
+  "features": {
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/arntanguy/nvim-devcontainer-feature/nvim:latest": {},
     "ghcr.io/devcontainers/features/github-cli": { "version": "latest" },
-    "ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": { "version": "latest" }
+    "ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": {
+      "version": "latest"
+    }
   },
 
   "customizations": {
-      "vscode": {
-          "extensions": [
-            "twxs.cmake",
-            "ms-vscode.cmake-tools",
-            "josetr.cmake-language-support-vscode",
-            "ms-vscode.cpptools",
-            "ms-vscode.docker",
-            "ms-vscode.cpptools-extension-pack",
-            "ms-vscode-remote.remote-containers",
-            "ms-python.python",
-            "GitHub.vscode-github-actions"
-          ]
-      }
+    "vscode": {
+      "extensions": [
+        "twxs.cmake",
+        "ms-vscode.cmake-tools",
+        "josetr.cmake-language-support-vscode",
+        "ms-vscode.cpptools",
+        "ms-vscode.docker",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode-remote.remote-containers",
+        "ms-python.python",
+        "GitHub.vscode-github-actions"
+      ]
+    }
   }
 }

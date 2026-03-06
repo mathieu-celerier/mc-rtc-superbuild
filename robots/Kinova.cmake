@@ -11,15 +11,38 @@ endif()
 
 set(MC_KINOVA_DEPENDS mc_rtc ros_kortex)
 if(WITH_Kinova_Bota)
+  AddCatkinProject(
+    bota_driver
+    GITHUB mathieu-celerier/bota_driver
+    GIT_TAG origin/iron-devel
+    WORKSPACE data_ws INSTALL_DEPENDENCIES
+  )
 
-AddCatkinProject(
-  bota_driver
-  GITHUB mathieu-celerier/bota_driver
-  GIT_TAG origin/iron-devel
-  WORKSPACE data_ws INSTALL_DEPENDENCIES
-)
+  AddCatkinProject(
+    soem
+    GITHUB mathieu-celerier/soem
+    GIT_TAG origin/foxy-devel
+    WORKSPACE data_ws INSTALL_DEPENDENCIES
+  )
+
   list(APPEND MC_KINOVA_DEPENDS bota_driver)
 endif()
+
+AddCatkinProject(
+  serial
+  GITHUB drashutoshspace/serial
+  GIT_TAG origin/main
+  WORKSPACE data_ws
+)
+
+AddCatkinProject(
+  ros2_robotiq_gripper
+  GITHUB PickNikRobotics/ros2_robotiq_gripper
+  GIT_TAG 12e6232
+  DEPENDS serial
+  WORKSPACE data_ws INSTALL_DEPENDENCIES
+)
+list(APPEND MC_KINOVA_DEPENDS ros2_robotiq_gripper)
 
 AddCatkinProject(
   ros_kortex

@@ -11,15 +11,15 @@
   "image": "ghcr.io/mc-rtc/mc-rtc-superbuild:jammy-devcontainer-latest",
 
   "mounts": [
-    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached"
-    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/mc-rtc-superbuild-jammy,target=/home/vscode/workspace,type=bind,consistency=cached"
+    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/kinova-demos-jammy,target=/home/vscode/workspace,type=bind,consistency=cached"
   ],
 
   "runArgs": [
     "--network=host",
     "--cap-add=sys_nice", // Grants the container the CAP_SYS_NICE capability, which allows the container to raise process nice values, set real-time scheduling policies, set CPU affinity, and other operations.
     "--security-opt", // allow core dumps
-    "seccomp=unconfined", // allow core dumps
+    "seccomp=unconfined" // allow core dumps
     // Uncomment for containers requiring use of nvidia GPUs
     // You will need to install NVIDIA Container Toolkit first
     // "--runtime=nvidia",
@@ -31,30 +31,31 @@
   },
 
   "remoteUser": "vscode",
-  "workspaceMount": "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/kinova-demos,target=/home/vscode/superbuild,type=bind",
+  "workspaceMount": "source=${localEnv:HOME}${localEnv:USERPROFILE}/superbuilds/kinova-demos,target=/home/vscode/superbuild,type=bind",
   "workspaceFolder": "/home/vscode/superbuild",
 
-  "features":
-  {
+  "features": {
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/arntanguy/nvim-devcontainer-feature/nvim:latest": {},
     "ghcr.io/devcontainers/features/github-cli": { "version": "latest" },
-    "ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": { "version": "latest" }
+    "ghcr.io/georgofenbeck/features/lazygit-linuxbinary:1": {
+      "version": "latest"
+    }
   },
 
   "customizations": {
-      "vscode": {
-          "extensions": [
-            "twxs.cmake",
-            "ms-vscode.cmake-tools",
-            "josetr.cmake-language-support-vscode",
-            "ms-vscode.cpptools",
-            "ms-vscode.docker",
-            "ms-vscode.cpptools-extension-pack",
-            "ms-vscode-remote.remote-containers",
-            "ms-python.python",
-            "GitHub.vscode-github-actions"
-          ]
-      }
+    "vscode": {
+      "extensions": [
+        "twxs.cmake",
+        "ms-vscode.cmake-tools",
+        "josetr.cmake-language-support-vscode",
+        "ms-vscode.cpptools",
+        "ms-vscode.docker",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode-remote.remote-containers",
+        "ms-python.python",
+        "GitHub.vscode-github-actions"
+      ]
+    }
   }
 }

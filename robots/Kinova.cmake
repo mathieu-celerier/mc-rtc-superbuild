@@ -38,7 +38,7 @@ AddCatkinProject(
 AddCatkinProject(
   ros2_robotiq_gripper
   GITHUB PickNikRobotics/ros2_robotiq_gripper
-  GIT_TAG 12e6232
+  GIT_TAG 12e623212e6891a5fcc9af94d67b07e640916394
   DEPENDS serial
   WORKSPACE data_ws INSTALL_DEPENDENCIES
 )

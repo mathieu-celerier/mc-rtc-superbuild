@@ -35,13 +35,23 @@ AddCatkinProject(
   WORKSPACE data_ws
 )
 
-AddCatkinProject(
-  ros2_robotiq_gripper
-  GITHUB PickNikRobotics/ros2_robotiq_gripper
-  GIT_TAG 12e623212e6891a5fcc9af94d67b07e640916394
-  DEPENDS serial
-  WORKSPACE data_ws INSTALL_DEPENDENCIES
-)
+if(ROS_DISTRO STREQUAL "humble")
+  AddCatkinProject(
+    ros2_robotiq_gripper
+    GITHUB aalmrad/ros2_robotiq_gripper
+    GIT_TAG origin/main
+    DEPENDS serial
+    WORKSPACE data_ws INSTALL_DEPENDENCIES
+  )
+else()
+  AddCatkinProject(
+    ros2_robotiq_gripper
+    GITHUB PickNikRobotics/ros2_robotiq_gripper
+    GIT_TAG 12e623212e6891a5fcc9af94d67b07e640916394
+    DEPENDS serial
+    WORKSPACE data_ws INSTALL_DEPENDENCIES
+  )
+endif()
 list(APPEND MC_KINOVA_DEPENDS ros2_robotiq_gripper)
 
 AddCatkinProject(

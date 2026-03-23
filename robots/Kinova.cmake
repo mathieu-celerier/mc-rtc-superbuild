@@ -13,17 +13,17 @@ set(MC_KINOVA_DEPENDS mc_rtc ros_kortex)
 if(WITH_Kinova_Bota)
   AddCatkinProject(
     bota_driver
-    GITHUB mathieu-celerier/bota_driver
-    GIT_TAG origin/iron-devel
+    GITLAB_PRIVATE botasys/drivers/bota_driver_ros2
+    GIT_TAG origin/main
     WORKSPACE data_ws INSTALL_DEPENDENCIES
   )
 
-  AddCatkinProject(
-    soem
-    GITHUB mathieu-celerier/soem
-    GIT_TAG origin/foxy-devel
-    WORKSPACE data_ws INSTALL_DEPENDENCIES
-  )
+  # AddCatkinProject(
+  #   soem
+  #   GITHUB mathieu-celerier/soem
+  #   GIT_TAG origin/foxy-devel
+  #   WORKSPACE data_ws INSTALL_DEPENDENCIES
+  # )
 
   list(APPEND MC_KINOVA_DEPENDS bota_driver)
 endif()
@@ -64,7 +64,7 @@ AddCatkinProject(
 AddProject(
   mc_kinova
   GITHUB mathieu-celerier/mc_kinova
-  GIT_TAG origin/main
+  GIT_TAG origin/topic/add-genA-bota
   DEPENDS ${MC_KINOVA_DEPENDS}
 )
 

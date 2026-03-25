@@ -1,0 +1,27 @@
+{
+    "version": 10,
+    "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+    "configurePresets": [
+        {
+            "name": "logistic-demo",
+            "displayName": "LogisticDemo RelWithDebInfo",
+            "inherits": [
+                "relwithdebinfo"
+            ],
+            "cacheVariables": {
+                "WITH_RHPS1": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "logistic-demo",
+            "displayName": "LogisticDemo RelWithDebInfo",
+            "configurePreset": "logistic-demo",
+            "configuration": "RelWithDebInfo",
+            "targets": [
+                "install"
+            ]
+        }
+    ]
+}

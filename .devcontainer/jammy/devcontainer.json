@@ -11,8 +11,8 @@
   "image": "ghcr.io/mc-rtc/mc-rtc-superbuild:jammy-devcontainer-latest",
 
   "mounts": [
-    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached"
-    // "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/mc-rtc-superbuild-jammy,target=/home/vscode/workspace,type=bind,consistency=cached"
+    "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/docker-ws/mc-rtc-superbuild-logistic-demo,target=/home/vscode/workspace,type=bind,consistency=cached"
   ],
 
   "runArgs": [
@@ -22,8 +22,8 @@
     "seccomp=unconfined", // allow core dumps
     // Uncomment for containers requiring use of nvidia GPUs
     // You will need to install NVIDIA Container Toolkit first
-    // "--runtime=nvidia",
-    // "--gpus=all",
+    "--runtime=nvidia",
+    "--gpus=all"
   ],
 
   "containerEnv": {

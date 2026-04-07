@@ -1,3 +1,3 @@
 [submodule "extensions/mc-logistic-demo-superbuild"]
 	path = extensions/mc-logistic-demo-superbuild
-	url = https://github.com/isri-aist/mc-logistic-demo-superbuild.git
+	url = git@github.com:isri-aist/mc-logistic-demo-superbuild.git

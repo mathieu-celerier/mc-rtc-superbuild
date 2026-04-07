@@ -31,8 +31,8 @@ AddProject(
 
 AddProject(
   state-observation
-  GITHUB jrl-umi3218/state-observation
-  GIT_TAG origin/master
+  GITHUB ArnaudDmt/state-observation
+  GIT_TAG origin/addWaiko
   CMAKE_ARGS -DBUILD_STATE_OBSERVATION_TOOLS:BOOL=OFF
   APT_PACKAGES libstate-observation-dev
 )
@@ -140,8 +140,8 @@ if(PYTHON_BINDING)
 endif()
 AddProject(
   Tasks
-  GITHUB jrl-umi3218/Tasks
-  GIT_TAG origin/master
+  GITHUB mathieu-celerier/Tasks
+  GIT_TAG origin/topic/closed-loop-velocity-damper
   DEPENDS ${Tasks_DEPENDS}
   APT_PACKAGES libtasks-qld-dev python-tasks python3-tasks
 )
@@ -162,7 +162,7 @@ endif()
 
 AddProject(
   tvm
-  GITHUB jrl-umi3218/tvm
+  GITHUB bastien-muraccioli/tvm
   GIT_TAG origin/master
   DEPENDS eigen-qld eigen-quadprog lexls ${tvm_EXTRA_DEPENDS}
   CMAKE_ARGS -DTVM_WITH_QLD:BOOL=ON
@@ -223,8 +223,8 @@ else()
 endif()
 AddProject(
   mc_rtc
-  GITHUB jrl-umi3218/mc_rtc
-  GIT_TAG origin/master
+  GITHUB mathieu-celerier/mc_rtc
+  GIT_TAG origin/topic/second-order-velocity-damper
   CMAKE_ARGS -DMC_LOG_UI_PYTHON_EXECUTABLE=${MC_LOG_UI_PYTHON_EXECUTABLE}
              ${MC_RTC_ROS_OPTION} ${MC_RTC_EXTRA_OPTIONS}
   DEPENDS ${mc_rtc_DEPENDS}
@@ -260,8 +260,10 @@ endif()
 
 AddProject(
   mc_state_observation
-  GITHUB jrl-umi3218/mc_state_observation
+  GITHUB mathieu-celerier/mc_state_observation
+  GIT_TAG origin/logistic-demo
   CMAKE_ARGS ${MC_STATE_OBSERVATION_OPTIONS}
   DEPENDS ${MC_STATE_OBSERVATION_DEPENDS}
   APT_PACKAGES mc-state-observation ros-${ROS_DISTRO}-mc-state-observation
+  SKIP_TEST
 )

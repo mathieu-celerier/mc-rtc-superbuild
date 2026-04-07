@@ -585,15 +585,13 @@ This is likely a conflict between different extensions."
     message("UNPARSED_ARGUMENTS: ${ADD_PROJECT_ARGS_UNPARSED_ARGUMENTS}")
   endif()
   if(NOT "${GIT_REPOSITORY}" STREQUAL "")
-    set(GIT_OPTIONS DOWNLOAD_COMMAND "")
+    # This superbuild manages git sources separately through the
+    # ${NAME}-submodule-init/update targets. CMake 4.3 rejects an empty
+    # SOURCE_DIR when no explicit download method is set, so use a no-op
+    # download step instead of relying on a temporary placeholder file.
+    set(GIT_OPTIONS DOWNLOAD_COMMAND ${CMAKE_COMMAND} -E true)
   else()
     set(GIT_OPTIONS "")
-  endif()
-  set(SOURCE_DIR_DID_NOT_EXIST FALSE)
-  if(NOT EXISTS "${SOURCE_DIR}")
-    set(SOURCE_DIR_DID_NOT_EXIST TRUE)
-    file(MAKE_DIRECTORY "${SOURCE_DIR}")
-    file(TOUCH "${SOURCE_DIR}/.mc-rtc-superbuild")
   endif()
   ExternalProject_Add(
     ${NAME}
@@ -614,15 +612,6 @@ This is likely a conflict between different extensions."
     COMMAND "${CMAKE_COMMAND}" --build "${PROJECT_BINARY_DIR}" ${PARALLEL_OPT} --target
             ${NAME} --config $<CONFIG>
   )
-  if(SOURCE_DIR_DID_NOT_EXIST)
-    file(REMOVE "${SOURCE_DIR}/.mc-rtc-superbuild")
-    execute_process(
-      COMMAND
-        ${CMAKE_COMMAND} -DSOURCE_DIR=${SOURCE_DIR}
-        -DSOURCE_DESTINATION=${SOURCE_DESTINATION} -P
-        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/scripts/clean-src-folders.cmake"
-    )
-  endif()
   ExternalProject_Add_StepTargets(${NAME} configure)
   add_dependencies(${NAME} ${NAME}-submodule-update)
   add_dependencies(${NAME}-configure ${NAME}-submodule-update)

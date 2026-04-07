@@ -31,10 +31,11 @@ AddProject(
 
 AddProject(
   state-observation
-  GITHUB jrl-umi3218/state-observation
-  GIT_TAG origin/master
+  GITHUB ArnaudDmt/state-observation
+  GIT_TAG ed5f7ee12f06
   CMAKE_ARGS -DBUILD_STATE_OBSERVATION_TOOLS:BOOL=OFF
   APT_PACKAGES libstate-observation-dev
+  SKIP_TEST
 )
 
 if(PYTHON_BINDING)
@@ -91,8 +92,8 @@ endif()
 
 AddProject(
   RBDyn
-  GITHUB mathieu-celerier/RBDyn
-  GIT_TAG origin/topic/RotorInertia
+  GITHUB jrl-umi3218/RBDyn
+  GIT_TAG origin/master
   DEPENDS SpaceVecAlg
   APT_PACKAGES librbdyn-dev python-rbdyn python3-rbdyn
 )
@@ -146,7 +147,7 @@ if(PYTHON_BINDING)
 endif()
 AddProject(
   Tasks
-  GITHUB mathieu-celerier/Tasks
+  GITHUB_PRIVATE mathieu-celerier/Tasks
   GIT_TAG origin/topic/closed-loop-velocity-damper
   DEPENDS ${Tasks_DEPENDS}
   APT_PACKAGES libtasks-qld-dev python-tasks python3-tasks
@@ -270,7 +271,7 @@ AddProject(
 if(WITH_ROS_SUPPORT)
   AddCatkinProject(
     mc_rtc_ros
-    GITHUB bastien-muraccioli/mc_rtc_ros
+    GITHUB jrl-umi3218/mc_rtc_ros
     GIT_TAG origin/master
     WORKSPACE mc_rtc_ws
     DEPENDS mc_rtc
@@ -295,8 +296,10 @@ endif()
 
 AddProject(
   mc_state_observation
-  GITHUB jrl-umi3218/mc_state_observation
+  GITHUB ArnaudDmt/mc_state_observation
+  GIT_TAG origin/addWaiko
   CMAKE_ARGS ${MC_STATE_OBSERVATION_OPTIONS}
   DEPENDS ${MC_STATE_OBSERVATION_DEPENDS}
   APT_PACKAGES mc-state-observation ros-${ROS_DISTRO}-mc-state-observation
+  SKIP_TEST
 )

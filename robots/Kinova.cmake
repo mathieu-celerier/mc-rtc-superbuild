@@ -28,31 +28,31 @@ if(WITH_Kinova_Bota)
   list(APPEND MC_KINOVA_DEPENDS bota_driver)
 endif()
 
-AddCatkinProject(
-  serial
-  GITHUB drashutoshspace/serial
-  GIT_TAG origin/main
-  WORKSPACE data_ws
-)
+# AddCatkinProject(
+#   serial
+#   GITHUB drashutoshspace/serial
+#   GIT_TAG origin/main
+#   WORKSPACE data_ws
+# )
 
-if(ROS_DISTRO STREQUAL "humble")
-  AddCatkinProject(
-    ros2_robotiq_gripper
-    GITHUB aalmrad/ros2_robotiq_gripper
-    GIT_TAG origin/main
-    DEPENDS serial
-    WORKSPACE data_ws INSTALL_DEPENDENCIES
-  )
-else()
-  AddCatkinProject(
-    ros2_robotiq_gripper
-    GITHUB PickNikRobotics/ros2_robotiq_gripper
-    GIT_TAG 12e623212e6891a5fcc9af94d67b07e640916394
-    DEPENDS serial
-    WORKSPACE data_ws INSTALL_DEPENDENCIES
-  )
-endif()
-list(APPEND MC_KINOVA_DEPENDS ros2_robotiq_gripper)
+# if(ROS_DISTRO STREQUAL "humble")
+#   AddCatkinProject(
+#     ros2_robotiq_gripper
+#     GITHUB aalmrad/ros2_robotiq_gripper
+#     GIT_TAG origin/main
+#     DEPENDS serial
+#     WORKSPACE data_ws INSTALL_DEPENDENCIES
+#   )
+# else()
+#   AddCatkinProject(
+#     ros2_robotiq_gripper
+#     GITHUB PickNikRobotics/ros2_robotiq_gripper
+#     GIT_TAG 12e623212e6891a5fcc9af94d67b07e640916394
+#     DEPENDS serial
+#     WORKSPACE data_ws INSTALL_DEPENDENCIES
+#   )
+# endif()
+# list(APPEND MC_KINOVA_DEPENDS ros2_robotiq_gripper)
 
 AddCatkinProject(
   ros_kortex
@@ -63,14 +63,14 @@ AddCatkinProject(
 
 AddProject(
   mc_kinova
-  GITHUB mathieu-celerier/mc_kinova
+  GITHUB_PRIVATE mathieu-celerier/mc_kinova
   GIT_TAG origin/topic/add-genA-bota
   DEPENDS ${MC_KINOVA_DEPENDS}
 )
 
 AddProject(
   mc_kortex
-  GITHUB mathieu-celerier/mc_kortex
+  GITHUB_PRIVATE mathieu-celerier/mc_kortex
   GIT_TAG origin/main
   DEPENDS mc_rtc ros_kortex
 )

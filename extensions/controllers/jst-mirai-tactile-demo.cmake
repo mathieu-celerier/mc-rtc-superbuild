@@ -1,7 +1,7 @@
 CreateCatkinWorkspace(ID jst-mirai-tactile-demo DIR jst_mirai_tactile_demo_ws CATKIN_BUILD)
 
 AptInstall(
-  ros-${ROS_DISTRO}-cv-bridge
+  ros-${ROS_DISTRO}-cv-bridge libncurses5-dev libncursesw5-dev
 )
 
 AddCatkinProject(serial
@@ -23,7 +23,7 @@ AddCatkinProject(tactile_info_framework
 )
 
 AddProject(tactile_admittance_controller
-  GITHUB_PRIVATE isri-aist/jst_mirai_tactile_admittance_controller
-  GIT_TAG origin/main
+  GITHUB_PRIVATE isri-aist/tactile-based-explicit-compliance-controller
+  GIT_TAG origin/topic/switch-to-explicit-compliance
   DEPENDS mc_rtc tactile_info_framework
 )

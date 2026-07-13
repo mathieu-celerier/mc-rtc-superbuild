@@ -14,7 +14,7 @@ AddCatkinProject(
 
 AddProject(
   mc_rhps1
-  GITHUB_PRIVATE isri-aist/mc_rhps1
-  GIT_TAG origin/master
+  GITHUB_PRIVATE mathieu-celerier/mc_rhps1
+  GIT_TAG origin/topic/add-rotor-inertia
   DEPENDS rhps1_description mc_rtc
 )

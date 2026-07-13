@@ -32,7 +32,7 @@ AddProject(
 AddProject(
   state-observation
   GITHUB ArnaudDmt/state-observation
-  GIT_TAG ed5f7ee12f06
+  GIT_TAG origin/addWaiko
   CMAKE_ARGS -DBUILD_STATE_OBSERVATION_TOOLS:BOOL=OFF
   APT_PACKAGES libstate-observation-dev
   SKIP_TEST
@@ -296,8 +296,8 @@ endif()
 
 AddProject(
   mc_state_observation
-  GITHUB ArnaudDmt/mc_state_observation
-  GIT_TAG origin/addWaiko
+  GITHUB mathieu-celerier/mc_state_observation
+  GIT_TAG origin/logistic-demo
   CMAKE_ARGS ${MC_STATE_OBSERVATION_OPTIONS}
   DEPENDS ${MC_STATE_OBSERVATION_DEPENDS}
   APT_PACKAGES mc-state-observation ros-${ROS_DISTRO}-mc-state-observation

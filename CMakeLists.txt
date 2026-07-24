@@ -133,6 +133,10 @@ if(UNIX
   include(cmake/linux-dependencies.cmake)
 endif()
 
+# Load a source snapshot (if any) before declaring projects so that AddProject can pin
+# every project to the recorded commit/remote
+LoadSnapshot()
+
 include(mc_rtc.cmake)
 
 add_subdirectory(robots)
@@ -140,6 +144,9 @@ add_subdirectory(robots)
 set_property(GLOBAL PROPERTY ADDED_EXTENSIONS)
 
 add_subdirectory(extensions)
+
+# All projects are now declared: create the save-snapshot/restore-snapshot targets
+SetupSnapshotTargets()
 
 # Personal projects can go here although that is not recommended PERSONAL_PROJECTS
 
@@ -153,6 +160,8 @@ message(
 ** - clone: clone all projects into their location, or update remote/branch
 ** - update: update all projects at once
 ** - uninstall: uninstall all projects at once
+** - save-snapshot: record every project's commit/remote into snapshots/<SNAPSHOT>.cmake (needs -DSNAPSHOT=<name>)
+** - restore-snapshot: check out the commits recorded in the active snapshot (needs -DSNAPSHOT=<name>)
 **
 ** You can also use the [COMMAND]-[NAME] form to update particular projects
 **

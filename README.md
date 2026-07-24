@@ -186,6 +186,46 @@ cmake --build . --target uninstall-mc_rtc
 ```
 
 
+Snapshots (freeze / reproduce a state)
+==
+
+A **snapshot** records the exact commit (and `origin` remote) of every source project so
+that a full multi-repository state can be committed into the superbuild repository and
+reproduced later — for a demonstration, a paper, or any specific piece of work. Because a
+snapshotted project is pinned to a commit (not a branch), it is treated as a fixed tag and
+is **immune to the `update` target**.
+
+Snapshots are plain CMake files under `snapshots/<name>.cmake` and are selected at
+configure time with `-DSNAPSHOT=<name>`.
+
+**Save the current state:**
+```shell
+# -DSNAPSHOT names the file to (re)generate
+cmake -S mc-rtc-superbuild -B mc-rtc-superbuild/build -DSNAPSHOT=icra-demo
+cmake --build mc-rtc-superbuild/build --target save-snapshot
+# -> writes mc-rtc-superbuild/snapshots/icra-demo.cmake, then commit it:
+cd mc-rtc-superbuild
+git checkout -b demo/icra
+git add snapshots/icra-demo.cmake && git commit -m "Snapshot: ICRA demo"
+```
+
+**Reproduce it (teammate or fresh machine):**
+```shell
+git clone https://github.com/mc-rtc/mc-rtc-superbuild
+cd mc-rtc-superbuild && git checkout demo/icra
+cmake -S . -B build -DSNAPSHOT=icra-demo      # pins projects; update will not move them
+cmake --build build --target clone            # clone every project
+cmake --build build --target restore-snapshot # check out the exact recorded commits/remotes
+cmake --build build                           # build the pinned state
+```
+
+`restore-snapshot` never discards local work: it skips (with a message) any project that
+has uncommitted changes or unpushed local commits.
+
+The precedence used by `AddProject` is:
+`command-line MC_RTC_SUPERBUILD_OVERRIDE_* (CI) > snapshot > declared GIT_TAG > origin/main`.
+
+
 Extensions
 --
 

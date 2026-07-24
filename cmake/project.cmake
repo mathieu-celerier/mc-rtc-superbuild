@@ -45,6 +45,7 @@ include(cmake/options.cmake)
 include(cmake/ros.cmake)
 include(cmake/setup-env.cmake)
 include(cmake/setup-source-monitor.cmake)
+include(cmake/snapshot.cmake)
 include(cmake/sources.cmake)
 include(cmake/sudo.cmake)
 
@@ -186,6 +187,7 @@ function(AddProject NAME)
   endif()
   # Handle GIT_REPOSITORY
   set(GIT_REPOSITORY "")
+  set(GIT_REPOSITORY_OVERRIDDEN OFF)
   foreach(SOURCE ${MC_RTC_SUPERBUILD_SOURCES})
     if(ADD_PROJECT_ARGS_${SOURCE})
       if(NOT "${GIT_REPOSITORY}" STREQUAL "")
@@ -197,6 +199,7 @@ function(AddProject NAME)
         set(GIT_REPOSITORY
             "${GIT_REPOSITORY}${MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE}}"
         )
+        set(GIT_REPOSITORY_OVERRIDDEN ON)
         message(
           WARNING
             "Overriding ${SOURCE} property for project ${NAME} because MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_${SOURCE} is set:
@@ -209,7 +212,16 @@ Git repository: \"${GIT_REPOSITORY}\""
       endif()
     endif()
   endforeach()
+  # A snapshot may pin the remote to a full URL. An explicit command-line override
+  # (CI) always wins over a snapshot.
+  if(DEFINED MC_RTC_SUPERBUILD_SNAPSHOT_${NAME}_REMOTE
+     AND NOT GIT_REPOSITORY_OVERRIDDEN
+     AND NOT "${GIT_REPOSITORY}" STREQUAL ""
+  )
+    set(GIT_REPOSITORY "${MC_RTC_SUPERBUILD_SNAPSHOT_${NAME}_REMOTE}")
+  endif()
   # Handle GIT_TAG
+  # Precedence: command-line OVERRIDE (CI) > snapshot pin > declared > default
   if(MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_GIT_TAG)
     set(GIT_TAG "${MC_RTC_SUPERBUILD_OVERRIDE_${NAME}_GIT_TAG}")
     message(
@@ -218,6 +230,8 @@ Git repository: \"${GIT_REPOSITORY}\""
 Previous: GIT_TAG \"${ADD_PROJECT_ARGS_GIT_TAG}\"
 Using   : GIT_TAG \"${GIT_TAG}\""
     )
+  elseif(DEFINED MC_RTC_SUPERBUILD_SNAPSHOT_${NAME}_GIT_TAG)
+    set(GIT_TAG "${MC_RTC_SUPERBUILD_SNAPSHOT_${NAME}_GIT_TAG}")
   elseif(ADD_PROJECT_ARGS_GIT_TAG)
     set(GIT_TAG "${ADD_PROJECT_ARGS_GIT_TAG}")
   else()
@@ -706,6 +720,15 @@ This is likely a conflict between different extensions."
       "${CMAKE_CURRENT_LIST_DIR}"
       CACHE INTERNAL ""
   )
+  # Register the project so snapshots can enumerate it. Only projects backed by an
+  # actual git repository can be snapshotted (this excludes apt-mirror pseudo-projects
+  # which return early above).
+  if(NOT "${GIT_REPOSITORY}" STREQUAL "")
+    set_property(GLOBAL APPEND PROPERTY MC_RTC_SUPERBUILD_PROJECTS "${NAME}")
+    set_property(
+      GLOBAL PROPERTY MC_RTC_SUPERBUILD_PROJECT_${NAME}_SOURCE_DIR "${SOURCE_DIR}"
+    )
+  endif()
 endfunction()
 
 # Wrapper around AddProject

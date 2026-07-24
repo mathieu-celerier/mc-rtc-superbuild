@@ -22,6 +22,13 @@ if(WIN32)
   )
 endif()
 
+set(SNAPSHOT
+    ""
+    CACHE
+      STRING
+      "Name of a snapshot under snapshots/ to pin every project to a recorded commit/remote"
+)
+
 option(LINK_BUILD_AND_SRC "Create symbolic links to/from build and src folders" ON)
 option(LINK_COMPILE_COMMANDS
        "Create a symbolic to compile_commands.json in the source folder" ON

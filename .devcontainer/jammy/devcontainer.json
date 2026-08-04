@@ -23,7 +23,11 @@
     // Uncomment for containers requiring use of nvidia GPUs
     // You will need to install NVIDIA Container Toolkit first
     "--runtime=nvidia",
-    "--gpus=all"
+    "--gpus=all",
+    "--env",
+    "NVIDIA_DRIVER_CAPABILITIES=all",
+    "--device=/dev/dri:/dev/dri",
+    "--group-add=video"
   ],
 
   "containerEnv": {

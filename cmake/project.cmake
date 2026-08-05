@@ -418,6 +418,15 @@ This is likely a conflict between different extensions."
     "-DPYTHON_BINDING_BUILD_PYTHON2_AND_PYTHON3:BOOL=${PYTHON_BINDING_BUILD_PYTHON2_AND_PYTHON3}"
   )
 
+  if(UNIX AND NOT APPLE AND EXISTS "$ENV{HOME}/.nix-profile")
+    # Some nix packages (e.g. freecad) ship broken bundled CMake config files
+    # (GTestConfig.cmake with a bogus include path) under their profile's
+    # lib/cmake directory. Since $ENV{HOME}/.nix-profile/bin is on PATH,
+    # CMake's find_package() picks it up as an extra search prefix and can
+    # resolve to those broken configs instead of a working dependency.
+    list(APPEND CMAKE_ARGS "-DCMAKE_IGNORE_PREFIX_PATH=$ENV{HOME}/.nix-profile")
+  endif()
+
   handle_compiler_launcher(CMAKE_ARGS)
 
   if(WIN32)

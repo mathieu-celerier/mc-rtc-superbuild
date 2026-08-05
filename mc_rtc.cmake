@@ -297,7 +297,7 @@ endif()
 AddProject(
   mc_state_observation
   GITHUB mathieu-celerier/mc_state_observation
-  GIT_TAG origin/logistic-demo
+  GIT_TAG origin/addWaiko
   CMAKE_ARGS ${MC_STATE_OBSERVATION_OPTIONS}
   DEPENDS ${MC_STATE_OBSERVATION_DEPENDS}
   APT_PACKAGES mc-state-observation ros-${ROS_DISTRO}-mc-state-observation

@@ -13,6 +13,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/controllers/humanoid_explicit_compliance.cmake
 include(${CMAKE_CURRENT_LIST_DIR}/controllers/explicit_compliance_controller.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/controllers/ismpc_walking.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/controllers/ismpc_walking_torque.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/controllers/jst-mirai-tactile-demo.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/controllers/mc_logistic_controller.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/controllers/jst-mirai-tactile-demo.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/controllers/mc_logistic_controller.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/controllers/collaborative_peg_in_hole_controller.cmake)

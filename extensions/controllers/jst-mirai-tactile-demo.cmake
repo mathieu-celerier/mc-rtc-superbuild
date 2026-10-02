@@ -1,7 +1,7 @@
 CreateCatkinWorkspace(ID jst-mirai-tactile-demo DIR jst_mirai_tactile_demo_ws CATKIN_BUILD)
 
 AptInstall(
-  ros-${ROS_DISTRO}-cv-bridge libncurses5-dev libncursesw5-dev
+  ros-${ROS_DISTRO}-cv-bridge libncurses-dev
 )
 
 AddCatkinProject(serial
